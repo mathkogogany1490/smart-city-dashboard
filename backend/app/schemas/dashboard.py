@@ -124,6 +124,8 @@ class SnsPostOut(BaseModel):
     views_label: str
     published_label: str
     accent: str
+    video_id: str | None = None
+    thumbnail_url: str | None = None
 
 
 class NewsOut(BaseModel):
@@ -150,10 +152,29 @@ class DensityItem(BaseModel):
     population: int
 
 
+class DongTrade(BaseModel):
+    name: str
+    count: int
+    average_manwon: int
+
+
+class TradeDeal(BaseModel):
+    apartment: str
+    district: str
+    amount_manwon: int
+    area_m2: float
+    floor: str
+    contract_date: str
+
+
 class RealEstateOut(BaseModel):
     connected: bool
     message: str
-    items: list[DensityItem]
+    month: str | None = None
+    total: int = 0
+    districts: list[DongTrade] = []
+    trades: list[TradeDeal] = []
+    items: list[DensityItem] = []
 
 
 class HealthOut(BaseModel):

@@ -113,6 +113,8 @@ export type SnsPost = {
   views_label: string;
   published_label: string;
   accent: string;
+  video_id: string | null;
+  thumbnail_url: string | null;
 };
 
 export type NewsItem = {
@@ -130,8 +132,27 @@ export type CityStatus = {
   source: string;
 };
 
+export type DongTrade = {
+  name: string;
+  count: number;
+  average_manwon: number;
+};
+
+export type TradeDeal = {
+  apartment: string;
+  district: string;
+  amount_manwon: number;
+  area_m2: number;
+  floor: string;
+  contract_date: string;
+};
+
 export type RealEstate = {
   connected: boolean;
   message: string;
+  month: string | null;
+  total: number;
+  districts: DongTrade[];
+  trades: TradeDeal[];
   items: { id: number; name: string; density: number; population: number }[];
 };

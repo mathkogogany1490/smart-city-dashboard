@@ -2,6 +2,15 @@ export function formatNumber(value: number) {
   return new Intl.NumberFormat("ko-KR").format(value);
 }
 
+export function formatManwon(value: number) {
+  if (value >= 10000) {
+    const eok = Math.floor(value / 10000);
+    const rest = value % 10000;
+    return rest ? `${eok}억 ${formatNumber(rest)}만` : `${eok}억`;
+  }
+  return `${formatNumber(value)}만`;
+}
+
 export function formatPct(value: number) {
   const sign = value > 0 ? "+" : "";
   return `${sign}${value.toFixed(1)}%`;

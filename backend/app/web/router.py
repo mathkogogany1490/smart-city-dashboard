@@ -98,5 +98,5 @@ async def city(service: Service) -> CityStatusOut:
 
 
 @api.get("/realestate", response_model=RealEstateOut)
-def realestate(service: Service) -> RealEstateOut:
-    return service.realestate()
+async def realestate(service: Service) -> RealEstateOut:
+    return await service.realestate()

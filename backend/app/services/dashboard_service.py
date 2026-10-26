@@ -12,6 +12,7 @@ from app.schemas.dashboard import (
     ComplaintItem,
     ComplaintSummary,
     DensityItem,
+    DongTrade,
     DistrictOut,
     DistrictPart,
     DistrictSummary,
@@ -23,8 +24,10 @@ from app.schemas.dashboard import (
     RankedDistrict,
     RealEstateOut,
     SnsPostOut,
+    TradeDeal,
 )
 from app.services.external import fetch_weather, fetch_youtube
+from app.services.molit import fetch_siheung_trades
 
 
 def change_pct(current: int, previous: int) -> float:
@@ -188,20 +191,32 @@ class DashboardService:
             source=source,
         )
 
-    def realestate(self) -> RealEstateOut:
+    async def realestate(self) -> RealEstateOut:
         items = [
             DensityItem(id=district.id, name=district.name, density=district.density, population=district.population)
             for district in sorted(self.repo.list_districts(), key=lambda item: item.density, reverse=True)
         ]
-        if settings.molit_api_key.strip():
+        service_key = settings.molit_api_key.strip()
+        if not service_key:
             return RealEstateOut(
-                connected=True,
-                message="국토부 API 키가 설정되어 있습니다. 현재 화면은 동별 인구밀도를 보여 줍니다.",
+                connected=False,
+                message="실거래 시세는 .env의 MOLIT_API_KEY를 넣으면 연결할 수 있습니다. 지금은 인구밀도를 보여 줍니다.",
+                items=items,
+            )
+        payload = await fetch_siheung_trades(service_key)
+        if payload is None:
+            return RealEstateOut(
+                connected=False,
+                message="국토부 실거래 조회에 실패했습니다. 인구밀도를 보여 줍니다.",
                 items=items,
             )
         return RealEstateOut(
-            connected=False,
-            message="실거래 시세는 .env의 MOLIT_API_KEY를 넣으면 연결할 수 있습니다. 지금은 인구밀도를 보여 줍니다.",
+            connected=True,
+            message=f"시흥시 아파트 매매 {payload['month']} {payload['total']:,}건",
+            month=payload["month"],
+            total=payload["total"],
+            districts=[DongTrade.model_validate(row) for row in payload["districts"]],
+            trades=[TradeDeal.model_validate(row) for row in payload["trades"]],
             items=items,
         )
 

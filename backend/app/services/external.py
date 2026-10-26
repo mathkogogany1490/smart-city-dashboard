@@ -168,6 +168,8 @@ async def fetch_youtube(api_key: str) -> list[SnsPostOut] | None:
             snippet = item["snippet"]
             extra = details.get(video_id, {})
             views = int(extra.get("statistics", {}).get("viewCount", 0))
+            thumbs = snippet.get("thumbnails") or {}
+            thumbnail = (thumbs.get("high") or thumbs.get("medium") or thumbs.get("default") or {}).get("url")
             posts.append(
                 SnsPostOut(
                     id=index + 1,
@@ -177,6 +179,8 @@ async def fetch_youtube(api_key: str) -> list[SnsPostOut] | None:
                     views_label=_views_label(views),
                     published_label=_relative_korean(snippet["publishedAt"]),
                     accent=accents[index % len(accents)],
+                    video_id=video_id,
+                    thumbnail_url=thumbnail or f"https://i.ytimg.com/vi/{video_id}/hqdefault.jpg",
                 )
             )
         if not posts:

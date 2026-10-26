@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import type { SnsPost } from "../../api/types";
 import { Panel, QueryNotice } from "../ui/Panel";
@@ -17,6 +18,8 @@ export function SnsPanel({
   loading: boolean;
   error: boolean;
 }) {
+  const [playingId, setPlayingId] = useState<string | null>(null);
+
   return (
     <Panel
       className="grow sns-panel"
@@ -37,9 +40,25 @@ export function SnsPanel({
         <div className="sns-list">
           {posts.map((post) => (
             <article key={`${post.channel}-${post.id}`} className="sns-card">
-              <div className={`thumb accent-${post.accent}`}>
-                {post.duration ? <span className="duration">{post.duration}</span> : null}
-              </div>
+              {playingId && playingId === post.video_id ? (
+                <iframe
+                  className="sns-player"
+                  src={`https://www.youtube.com/embed/${post.video_id}?autoplay=1`}
+                  title={post.title}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              ) : (
+                <button
+                  type="button"
+                  className={`thumb accent-${post.accent}`}
+                  onClick={() => post.video_id && setPlayingId(post.video_id)}
+                  disabled={!post.video_id}
+                >
+                  {post.thumbnail_url ? <img src={post.thumbnail_url} alt="" /> : null}
+                  {post.duration ? <span className="duration">{post.duration}</span> : null}
+                </button>
+              )}
               <div>
                 <h3>{post.title}</h3>
                 <p>
